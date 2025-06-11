@@ -29,8 +29,10 @@ class MenuItem(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=8, decimal_places=2)
+    image = models.ImageField(upload_to='menu_images/', blank=True, null=True)
     available = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
 
     def __str__(self):
         return f"{self.name} - {self.restaurant.name}"
@@ -47,8 +49,28 @@ class Order(models.Model):
         ('cancelled', 'Cancelled'),
     ]
 
-    customer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    restaurant = models.ForeignKey('Restaurant', on_delete=models.CASCADE)
+
+    PAYMENT_METHOD_CHOICES = [
+        ("card", "Card"),
+        ("cash", "Cash on Delivery"),
+        ("transfer", "Bank Transfer"),
+    ]
+
+    PAYMENT_STATUS_CHOICES = [
+        ("pending", "Pending"),
+        ("paid", "Paid"),
+        ("failed", "Failed"),
+    ]
+
+    
+    
+    items = models.ManyToManyField(MenuItem)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
+
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES, default="cash")
+    payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default="pending")
+    customer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='customer_orders')
+    restaurant = models.ForeignKey('Restaurant', on_delete=models.CASCADE,  related_name='restaurant_orders')
     items = models.ManyToManyField('MenuItem')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
     created_at = models.DateTimeField(auto_now_add=True)

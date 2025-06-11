@@ -13,8 +13,10 @@ class RestaurantSerializer(serializers.ModelSerializer):
 class MenuItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = MenuItem
-        fields = ['id', 'restaurant', 'name', 'description', 'price', 'available', 'created_at']
+        fields = '__all__'
         read_only_fields = ['id', 'created_at']
+        image = serializers.ImageField(use_url=True)
+
 
 
 
